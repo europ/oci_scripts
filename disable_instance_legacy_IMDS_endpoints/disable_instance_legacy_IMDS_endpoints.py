@@ -54,6 +54,8 @@ def main(compartment_id, config_file, profile_name):
             (
                 instance.instance_options is None
                 or
+                'are_legacy_imds_endpoints_disabled' not in dir(instance.instance_options)
+                or
                 instance.instance_options.are_legacy_imds_endpoints_disabled is False
             )
         )
