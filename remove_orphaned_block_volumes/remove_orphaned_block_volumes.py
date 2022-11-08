@@ -35,7 +35,7 @@ import logging
 @click.help_option('-h', '--help')
 def main(compartment_id, config_file, profile_name, delete):
     logging.basicConfig(
-        level = logging.DEBUG,
+        level = logging.INFO,
         format='%(asctime)-s | %(pathname)s:%(lineno)s | %(levelname)-s | %(message)s',
         datefmt='%d-%m-%Y %H:%M:%S'
     )
@@ -78,10 +78,14 @@ def main(compartment_id, config_file, profile_name, delete):
     # DELETE orphaned volumes
     if delete is True:
         for volume_id in volume_orphaned_list:
+            logging.info(f"OCI block volume > processing {volume_id}")
+
+            get_volume_response = oci_client_core_blockstorage.get_volume(volume_id=volume_id)
+            if get_volume_response.data.volume_group_id is not None:
+                delete_volume_group_response = oci_client_core_blockstorage.delete_volume_group(volume_group_id=get_volume_response.data.volume_group_id)
+
             logging.info(f"OCI block volume > deleting {volume_id}")
-            update_instance_response = oci_client_core_blockstorage.delete_volume(
-                volume_id=volume_id
-            )
+            delete_volume_response = oci_client_core_blockstorage.delete_volume(volume_id=volume_id)
 
     logging.info("Successfully finished.")
 
